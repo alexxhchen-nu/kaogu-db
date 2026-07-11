@@ -82,6 +82,11 @@
   - 测试结果：50 页 → 9 座墓葬, 26 件器物
 - Notebook: `notebooks/ocr_pipeline.ipynb`
 
+### Phase 3：R2 期刊 OCR 🔄 运行中
+- 143 个期刊 PDF 已从 R2 下载到 VPS（文物 117 + 文物1972 1 + 考古学报 25）
+- tmux `r2-ocr` 正在处理
+- 当前进度：3 报告, 10 墓葬, 27 器物
+
 #### 使用方法
 ```bash
 # 处理单个 PDF
@@ -140,7 +145,8 @@ sqlite3 kaogu.db "SELECT * FROM tomb_overview;"
 1. ✅ **获取 BunnyCDN 凭证** — 已从 gopass 获取
 2. ✅ **编写 CSV 导入脚本** — `scripts/import_csv.py`
 3. ✅ **导入 10 个 CSV** — 898 座墓葬, 2,291 件器物
-4. ⬜ **GIS 可视化** — 使用 QGIS 或 Leaflet 展示墓葬分布
+4. ✅ **GIS 可视化** — Leaflet 地图已生成，64 个站点，633 座墓葬
+5. ✅ **GitHub 仓库** — `alexxhchen-nu/kaogu-db`
 
 ## 使用示例
 
