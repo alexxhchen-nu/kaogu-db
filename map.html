@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>考古墓葬分布图</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Microsoft YaHei', sans-serif; }
+        #map { width: 100%; height: 100vh; }
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        .info-panel h3 { margin: 0 0 10px 0; color: #333; }
+        .info-panel .stat { margin: 5px 0; font-size: 14px; }
+        .marker-label {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #666;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-panel">
+        <h3>考古墓葬分布图</h3>
+        <div class="stat">总站点数: <strong>64</strong></div>
+        <div class="stat">墓葬总数: <strong>633</strong></div>
+        <div class="stat">地理编码: <strong>0</strong> 个站点</div>
+        <hr>
+        <div class="stat" style="font-size:12px; color:#666;">
+            点击标记查看详情 | 滚轮缩放 | 拖拽平移
+        </div>
+    </div>
+    <div class="legend">
+        <div style="font-weight:bold; margin-bottom:8px;">墓葬数量</div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#3388ff; width:10px; height:10px;"></div>
+            <span>1-5 座</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#ff6b35; width:14px; height:14px;"></div>
+            <span>6-20 座</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="background:#ff1744; width:18px; height:18px;"></div>
+            <span>21+ 座</span>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([38.5, 115.5], 7);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+        
+        var data = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.32, 38.95]}, "properties": {"id": 1, "name": "满城汉墓", "province": "河北", "city": "保定", "tomb_count": 2, "dynasties": "西汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.9, 39.5]}, "properties": {"id": 2, "name": "土城镇东沟道下", "province": "", "city": "", "tomb_count": 1, "dynasties": "春秋-战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.89, 37.8]}, "properties": {"id": 3, "name": "武邑县刘疃乡中角村北", "province": "河北", "city": "衡水", "tomb_count": 1, "dynasties": "汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.69, 37.49]}, "properties": {"id": 4, "name": "柏乡县南马乡侍中村", "province": "河北", "city": "邢台", "tomb_count": 2, "dynasties": "宋代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.31, 38.09]}, "properties": {"id": 5, "name": "鹿泉市北新城", "province": "河北", "city": "石家庄", "tomb_count": 8, "dynasties": "唐代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.31, 38.09]}, "properties": {"id": 6, "name": "鹿泉市南海山北墓区", "province": "河北", "city": "石家庄", "tomb_count": 17, "dynasties": "唐代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.31, 38.09]}, "properties": {"id": 7, "name": "鹿泉市南海山南墓区", "province": "河北", "city": "石家庄", "tomb_count": 3, "dynasties": "唐代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.52, 38.05]}, "properties": {"id": 15, "name": "石家庄后太保村", "province": "河北", "city": "石家庄", "tomb_count": 9, "dynasties": "元代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 16, "name": "内邱小驿头T106", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "战国早期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 17, "name": "内邱小驿头T96", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "战国早期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 18, "name": "内邱小驿头T108", "province": "河北", "city": "邢台", "tomb_count": 2, "dynasties": "春秋？,战国早期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 19, "name": "内邱小驿头T95", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "春秋晚期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 20, "name": "内邱小驿头T87", "province": "河北", "city": "邢台", "tomb_count": 2, "dynasties": "春秋？,战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 21, "name": "内邱小驿头T81", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "战国中期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 22, "name": "内邱小驿头T71", "province": "河北", "city": "邢台", "tomb_count": 2, "dynasties": "春秋中期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 23, "name": "内邱小驿头T8", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "春秋中期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 24, "name": "内邱小驿头", "province": "河北", "city": "邢台", "tomb_count": 5, "dynasties": "战国中期,战国早期,春秋中期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 25, "name": "内邱小驿头II区", "province": "河北", "city": "邢台", "tomb_count": 2, "dynasties": ""}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 37.29]}, "properties": {"id": 26, "name": "内邱小驿头II区北部", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": ""}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 38.04]}, "properties": {"id": 27, "name": "石家庄市郊岳村铺", "province": "河北", "city": "石家庄", "tomb_count": 2, "dynasties": "汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.97, 39.49]}, "properties": {"id": 28, "name": "涿州张村东营墓群", "province": "河北", "city": "保定", "tomb_count": 5, "dynasties": "元代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.97, 39.49]}, "properties": {"id": 29, "name": "涿州张村东营墓群北部", "province": "河北", "city": "保定", "tomb_count": 2, "dynasties": "汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.9, 39.5]}, "properties": {"id": 31, "name": "土城镇西北2.5公里白桦沟北沟掌", "province": "", "city": "", "tomb_count": 1, "dynasties": "春秋-战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [116.1, 38.17]}, "properties": {"id": 32, "name": "献县万村乡陵上寺村", "province": "河北", "city": "沧州", "tomb_count": 1, "dynasties": "汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.89, 37.8]}, "properties": {"id": 38, "name": "武邑县龙店村北", "province": "河北", "city": "衡水", "tomb_count": 3, "dynasties": "宋代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.5, 39.35]}, "properties": {"id": 39, "name": "燕下都遗址（零散清理）", "province": "河北", "city": "保定", "tomb_count": 5, "dynasties": "东汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.5, 39.35]}, "properties": {"id": 40, "name": "燕下都六号遗址", "province": "河北", "city": "保定", "tomb_count": 45, "dynasties": "西汉中期,西汉晚期,西汉早期,汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.5, 39.35]}, "properties": {"id": 41, "name": "燕下都二号遗址", "province": "河北", "city": "保定", "tomb_count": 4, "dynasties": "东汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.5, 38.1]}, "properties": {"id": 42, "name": "官庄遗址", "province": "河北", "city": "衡水", "tomb_count": 28, "dynasties": "汉代,夏家店下层文化(存疑),夏家店下层文化,汉?,年代不详"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.56, 38.0]}, "properties": {"id": 43, "name": "深州市下博", "province": "河北", "city": "衡水", "tomb_count": 11, "dynasties": "汉唐"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.46, 38.46]}, "properties": {"id": 44, "name": "博野县刘陀店", "province": "河北", "city": "保定", "tomb_count": 3, "dynasties": "宋金"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.31, 38.09]}, "properties": {"id": 45, "name": "鹿泉市高庄", "province": "河北", "city": "石家庄", "tomb_count": 1, "dynasties": "西汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.5, 37.07]}, "properties": {"id": 46, "name": "邢台泽丰小区", "province": "河北", "city": "邢台", "tomb_count": 4, "dynasties": "北宋"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.5, 37.07]}, "properties": {"id": 47, "name": "邢台旅馆汉唐宋墓葬的发掘", "province": "河北", "city": "邢台", "tomb_count": 21, "dynasties": "汉代,宋末金初"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [116.7, 39.52]}, "properties": {"id": 51, "name": "廊坊市安次县大伍龙村", "province": "河北", "city": "廊坊", "tomb_count": 2, "dynasties": "元代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [116.3, 39.44]}, "properties": {"id": 52, "name": "廊坊固安县公主府砖场五代墓", "province": "河北", "city": "廊坊", "tomb_count": 2, "dynasties": "五代（后晋）"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.57, 39.84]}, "properties": {"id": 53, "name": "蔚县埚串堡1号汉墓发掘报告", "province": "河北", "city": "张家口", "tomb_count": 1, "dynasties": "东汉晚期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.5, 37.07]}, "properties": {"id": 54, "name": "邢台市人民公园古城墙（墓葬部分）", "province": "河北", "city": "邢台", "tomb_count": 1, "dynasties": "魏晋"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [116.7, 39.52]}, "properties": {"id": 55, "name": "廊坊市和平丽景小区辽代墓群", "province": "河北", "city": "廊坊", "tomb_count": 4, "dynasties": "辽代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [116.27, 37.69]}, "properties": {"id": 56, "name": "河北景县青兰汉墓发掘简报", "province": "河北", "city": "衡水", "tomb_count": 2, "dynasties": "汉代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [113.69, 36.58]}, "properties": {"id": 57, "name": "河北涉县台村宋金及清代墓葬发掘简报", "province": "河北", "city": "邯郸", "tomb_count": 58, "dynasties": "宋金,清代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.97, 37.35]}, "properties": {"id": 58, "name": "故城县西南屯", "province": "河北", "city": "衡水", "tomb_count": 6, "dynasties": "晚唐"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [117.33, 40.94]}, "properties": {"id": 59, "name": "滦平行家坟墓地", "province": "河北", "city": "承德", "tomb_count": 5, "dynasties": "清代（嘉庆）"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.51, 38.04]}, "properties": {"id": 60, "name": "石家庄市肖家营", "province": "河北", "city": "石家庄", "tomb_count": 3, "dynasties": "东汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.46, 38.87]}, "properties": {"id": 61, "name": "保定河北大学紫园第一区", "province": "河北", "city": "保定", "tomb_count": 3, "dynasties": "明代中晚期至清早期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.46, 38.87]}, "properties": {"id": 62, "name": "保定河北大学紫园第二区", "province": "河北", "city": "保定", "tomb_count": 6, "dynasties": "明代中晚期至清早期"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.7, 37.8]}, "properties": {"id": 160, "name": "张夺2号遗址（09Ⅱ）", "province": "河北", "city": "邢台", "tomb_count": 67, "dynasties": "秦至西汉,战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.7, 37.8]}, "properties": {"id": 161, "name": "张夺村南1号墓地", "province": "河北", "city": "邢台", "tomb_count": 33, "dynasties": "秦至西汉,东汉,战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.7, 37.8]}, "properties": {"id": 162, "name": "张夺村南2号墓地", "province": "河北", "city": "邢台", "tomb_count": 39, "dynasties": "秦至西汉,东汉,战国"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [115.65, 39.02]}, "properties": {"id": 163, "name": "徐水东黑山遗址", "province": "河北", "city": "保定", "tomb_count": 23, "dynasties": "金代,西汉早期,东汉,明代,西汉中晚期,宋代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.6, 37.5]}, "properties": {"id": 164, "name": "南吴会墓地", "province": "河北", "city": "邢台", "tomb_count": 11, "dynasties": "宋代,清代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.55, 37.55]}, "properties": {"id": 165, "name": "西龙贵墓地", "province": "河北", "city": "邢台", "tomb_count": 19, "dynasties": "东汉,金代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.53, 37.52]}, "properties": {"id": 166, "name": "殷村墓地", "province": "河北", "city": "邢台", "tomb_count": 27, "dynasties": "东汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.36, 36.36]}, "properties": {"id": 167, "name": "双庙砖厂东侧、双庙村西南", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "东汉"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.36, 36.36]}, "properties": {"id": 168, "name": "双庙砖厂南侧、东小屋村东", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "唐代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.36, 36.36]}, "properties": {"id": 169, "name": "双庙砖厂西侧、东小屋村东", "province": "河北", "city": "邯郸", "tomb_count": 19, "dynasties": "东汉,两汉/魏晋待定,唐代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.35, 36.35]}, "properties": {"id": 170, "name": "讲武城双庙村西南", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "北宋"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.36, 36.36]}, "properties": {"id": 172, "name": "双庙村西南 600 米", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "东魏"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.36, 36.36]}, "properties": {"id": 173, "name": "双庙村正南、南水北调渠线西侧", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "北齐"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.38, 36.37]}, "properties": {"id": 220, "name": "滏阳营/湾漳营/东窑头/槐树屯墓区", "province": "河北", "city": "邯郸", "tomb_count": 67, "dynasties": "清代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.38, 36.37]}, "properties": {"id": 221, "name": "湾漳营墓区（Ⅱ区）", "province": "河北", "city": "邯郸", "tomb_count": 1, "dynasties": "晋代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.39, 36.38]}, "properties": {"id": 222, "name": "东窑头/槐树屯等墓区", "province": "河北", "city": "邯郸", "tomb_count": 12, "dynasties": "明代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.39, 36.38]}, "properties": {"id": 223, "name": "东窑头墓区（Ⅲ区）", "province": "河北", "city": "邯郸", "tomb_count": 4, "dynasties": "元代,宋代"}}, {"type": "Feature", "geometry": {"type": "Point", "coordinates": [114.4, 36.39]}, "properties": {"id": 224, "name": "槐树屯墓区（Ⅳ区）", "province": "河北", "city": "邯郸", "tomb_count": 15, "dynasties": "元代,唐代,西晋,宋代,西汉"}}]};
+        
+        function getColor(count) {
+            if (count > 20) return '#ff1744';
+            if (count > 5) return '#ff6b35';
+            return '#3388ff';
+        }
+        
+        function getSize(count) {
+            if (count > 20) return 14;
+            if (count > 5) return 10;
+            return 7;
+        }
+        
+        L.geoJSON(data, {
+            pointToLayer: function(feature, latlng) {
+                var count = feature.properties.tomb_count;
+                return L.circleMarker(latlng, {
+                    radius: getSize(count),
+                    fillColor: getColor(count),
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+            },
+            onEachFeature: function(feature, layer) {
+                var p = feature.properties;
+                var popup = '<div style="min-width:200px;">' +
+                    '<h4 style="margin:0 0 8px 0;">' + p.name + '</h4>' +
+                    '<p style="margin:4px 0;"><b>省份:</b> ' + (p.province || '未知') + '</p>' +
+                    '<p style="margin:4px 0;"><b>城市:</b> ' + (p.city || '未知') + '</p>' +
+                    '<p style="margin:4px 0;"><b>墓葬数:</b> ' + p.tomb_count + '</p>' +
+                    '<p style="margin:4px 0;"><b>朝代:</b> ' + (p.dynasties || '未知') + '</p>' +
+                    '</div>';
+                layer.bindPopup(popup);
+                
+                if (p.tomb_count > 10) {
+                    layer.bindTooltip(p.name + ' (' + p.tomb_count + ')', {
+                        permanent: true,
+                        direction: 'right',
+                        className: 'marker-label'
+                    });
+                }
+            }
+        }).addTo(map);
+        
+        // 自动缩放到数据范围
+        if (data.features.length > 0) {
+            var bounds = L.geoJSON(data).getBounds();
+            map.fitBounds(bounds.pad(0.1));
+        }
+    </script>
+</body>
+</html>
